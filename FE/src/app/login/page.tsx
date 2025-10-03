@@ -9,6 +9,8 @@ import Button from "@/components/ui/Button";
 import SocialAuth from "@/components/ui/SocialAuth";
 import { LoginRequest } from "@/types/auth";
 import { loginSchema } from "@/validation/auth";
+import { authService } from "@/services/auth";
+import { AxiosError } from "axios";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,19 +21,19 @@ export default function LoginPage() {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    // try {
-    //   const res = await authService.login(values);
-    //   if (res?.success) {
-    //     setTimeout(() => router.push("/"), 500);
-    //   } else {
-    //     setError("root", { message: res?.message || "Đăng nhập thất bại" });
-    //   }
-    // } catch (err: unknown) {
-    //   let message = "Có lỗi xảy ra";
-    //   const ax = err as AxiosError<{ message?: string }>;
-    //   if (ax?.response?.data?.message) message = ax.response.data.message;
-    //   setError("root", { message });
-    // }
+    try {
+      const res = await authService.login(values);
+      if (res?.success) {
+        setTimeout(() => router.push("/"), 500);
+      } else {
+        setError("root", { message: res?.message || "Đăng nhập thất bại" });
+      }
+    } catch (err: unknown) {
+      let message = "Có lỗi xảy ra";
+      const ax = err as AxiosError<{ message?: string }>;
+      if (ax?.response?.data?.message) message = ax.response.data.message;
+      setError("root", { message });
+    }
   });
 
   return (

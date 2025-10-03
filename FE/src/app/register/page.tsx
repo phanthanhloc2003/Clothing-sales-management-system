@@ -47,7 +47,6 @@ export default function RegisterPage() {
         <div className="mx-auto max-w-md rounded-2xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur p-6">
           <h1 className="text-2xl font-semibold" style={{ color: "var(--brand-navy)" }}>Tạo tài khoản</h1>
           <p className="mt-1 text-sm opacity-80">Tham gia để mua sắm nhanh hơn và nhận ưu đãi.</p>
-
           <form className="mt-6 space-y-4" onSubmit={onSubmit}>
             <MotionFade delay={0.05}>
               <TextField label="Họ và tên" placeholder="Nguyễn Văn A" {...register("fullName")} error={errors.fullName?.message} />
@@ -64,7 +63,6 @@ export default function RegisterPage() {
                 <div className="text-sm text-red-500">{errors.root.message}</div>
               </MotionFade>
             ) : null}
-
             <MotionFade delay={0.2}>
               <Button type="submit" variant="accent" className="w-full" loading={isSubmitting}>
                 Đăng ký
