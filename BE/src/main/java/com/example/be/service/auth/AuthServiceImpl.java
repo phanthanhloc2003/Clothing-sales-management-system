@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Triển khai logic đăng nhập và làm mới token:
@@ -93,6 +95,28 @@ public class AuthServiceImpl implements AuthService {
                 .refreshToken(newRefresh)
                 .tokenType("Bearer")
                 .user(userDto)
+                .build();
+    }
+
+    @Override
+    public UserResponseNoPassDTO me() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            throw new InvalidCredentialsException("Unauthorized");
+        }
+        String phone = authentication.getName();
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> new InvalidCredentialsException("Unauthorized"));
+
+        return UserResponseNoPassDTO.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .phone(user.getPhone())
+                .role(user.getRole().name())
+                .status(user.getStatus().name())
+                .avatar(user.getAvatar())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

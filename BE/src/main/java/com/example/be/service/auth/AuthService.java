@@ -11,4 +11,8 @@ import com.example.be.dto.user.LoginRequestUser;
 public interface AuthService {
     AuthResponse login(LoginRequestUser loginRequestUser);
     AuthResponse refresh(String refreshToken);
+    /**
+     * Lấy thông tin user hiện tại từ SecurityContext (JWT đã xác thực)
+     */
+    com.example.be.dto.user.UserResponseNoPassDTO me();
 }
