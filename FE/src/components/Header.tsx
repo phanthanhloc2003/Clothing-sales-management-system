@@ -6,15 +6,39 @@ import { useEffect, useState } from "react";
 export default function Header() {
   const { scrollY } = useScroll();
   const [elevated, setElevated] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setElevated(latest > 10);
   });
 
   useEffect(() => {
-    // Ensure server/client mismatch avoided
+    setMounted(true);
     setElevated(false);
   }, []);
+
+  if (!mounted) {
+    return (
+      <header className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-[color:var(--brand-beige)]/70 dark:supports-[backdrop-filter]:bg-[color:var(--background)]/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <nav className="flex h-16 items-center justify-between">
+            <Link href="/" className="font-semibold tracking-tight text-xl">
+              <span style={{ color: "var(--brand-navy)" }}>FASHION</span>
+              <span className="sr-only">.</span>
+            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/search" aria-label="Tìm kiếm" className="opacity-80 hover:opacity-100 transition-opacity hover:text-[color:var(--accent)]">
+                🔍
+              </Link>
+              <Link href="/cart" aria-label="Giỏ hàng" className="opacity-80 hover:opacity-100 transition-opacity hover:text-[color:var(--accent)]">
+                🛒
+              </Link>
+            </div>
+          </nav>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <motion.header

@@ -2,14 +2,14 @@
 
 :root {
   /* Brand palette */
-  --brand-navy: #0a2540; /* navy chính */
-  --brand-beige: #f5efe6; /* be ấm áp */
-  --accent: #ff5a3c; /* đỏ cam cho CTA/nhấn mạnh */
+  --brand-navy: #0a2540; 
+  --brand-beige: #f5efe6;
+  --accent: #ff5a3c; 
   --accent-foreground: #ffffff;
 
   /* Base tokens derived */
-  --background: #ffffff; /* nền sáng chủ đạo */
-  --foreground: #0f172a; /* gần slate-900 cho độ tương phản */
+  --background: #ffffff; 
+  --foreground: #0f172a;
   --muted: #9ca3af;
 }
 

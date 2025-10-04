@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const registerSchema = z.object({
-  name: z.string().trim().min(1, "Vui lòng nhập tên"),
+  fullName: z.string().trim().min(1, "Vui lòng nhập tên"),
   phone: z
     .string()
     .trim()

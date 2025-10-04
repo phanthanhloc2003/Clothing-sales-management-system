@@ -1,11 +1,11 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 
 const axiosClient: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/",
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000, // 10s
+  timeout: 10000, 
 });
 
 // Request Interceptor
@@ -22,7 +22,6 @@ axiosClient.interceptors.request.use(
   }
 );
 
-// Response Interceptor
 axiosClient.interceptors.response.use(
   (response) => response.data,
   async (error: AxiosError) => {
@@ -30,9 +29,7 @@ axiosClient.interceptors.response.use(
       const status = error.response.status;
       const data = (error.response.data as { message?: string }) || {};
 
-      // Ví dụ: refresh token nếu 401
       if (status === 401) {
-        // TODO: gọi API refresh token
         console.warn("Unauthorized - redirect to login");
       }
 

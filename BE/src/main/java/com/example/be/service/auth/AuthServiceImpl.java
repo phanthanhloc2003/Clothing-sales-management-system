@@ -16,12 +16,6 @@ import java.util.Map;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-/**
- * Triển khai logic đăng nhập và làm mới token:
- * - Xác thực phone/password bằng BCrypt
- * - Sinh access/refresh token với claims (role)
- * - Refresh: xác thực refresh token (type, hạn), phát hành token mới
- */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {

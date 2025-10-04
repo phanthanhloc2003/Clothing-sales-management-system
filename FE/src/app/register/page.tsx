@@ -26,14 +26,17 @@ export default function RegisterPage() {
   });
 
   const onSubmit = handleSubmit(async (values) => {
+    console.log("Form submitted with values:", values);
     try {
       const res = await authService.register(values);
+      console.log("Register response:", res);
       if (res?.success) {
         setTimeout(() => router.push("/"), 800);
       } else {
         setError("root", { message: res?.message || "Đăng ký thất bại" });
       }
     } catch (err: unknown) {
+      console.error("Register error:", err);
       let message = "Có lỗi xảy ra";
       const ax = err as AxiosError<{ message?: string }>;
       if (ax?.response?.data?.message) message = ax.response.data.message;

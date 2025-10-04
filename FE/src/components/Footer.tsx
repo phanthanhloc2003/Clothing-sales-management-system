@@ -1,14 +1,21 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export default function Footer() {
+  const [currentYear, setCurrentYear] = useState(2024);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
   return (
     <footer className="mt-16 border-t border-black/10 dark:border-white/10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-sm opacity-80">
-            © {new Date().getFullYear()} <span style={{ color: "var(--brand-navy)" }}>FASHION</span>. All rights reserved.
+            © {currentYear} <span style={{ color: "var(--brand-navy)" }}>FASHION</span>. All rights reserved.
           </div>
           <div className="flex items-center gap-5">
             {[

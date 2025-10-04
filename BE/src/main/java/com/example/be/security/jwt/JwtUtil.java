@@ -29,16 +29,12 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * Tạo access token kèm claims (ví dụ: role) cho subject (phone).
-     */
+   
     public String generateAccessToken(String subject, Map<String, Object> claims) {
         return buildToken(subject, claims, accessExpirationMs);
     }
 
-    /**
-     * Tạo refresh token với claim type=refresh, thời hạn dài hơn.
-     */
+    
     public String generateRefreshToken(String subject) {
         return buildToken(subject, Map.of("type", "refresh"), refreshExpirationMs);
     }
@@ -55,9 +51,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    /**
-     * Kiểm tra token hợp lệ: subject khớp và chưa hết hạn.
-     */
+   
     public boolean isTokenValid(String token, String subject) {
         final String username = extractUsername(token);
         return (username.equals(subject) && !isTokenExpired(token));

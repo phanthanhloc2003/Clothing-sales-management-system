@@ -3,6 +3,7 @@ package com.example.be.security;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.example.be.security.jwt.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,35 +14,42 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
-/**
- * Cấu hình bảo mật ở chế độ stateless dùng JWT:
- * - Mở public /users/register, /auth/login, /auth/refresh
- * - Những request khác yêu cầu xác thực qua JwtAuthenticationFilter
- */
 @Configuration
 public class SecurityConfig {
+    
+    @Autowired
+    private CorsConfigurationSource corsConfigurationSource;
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Cấu hình security
+    /**
+     * Cấu hình security với CORS:
+     * - Tích hợp CORS configuration từ CorsConfig
+     * - Cho phép preflight requests (OPTIONS)
+     * - Cấu hình stateless với JWT
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/register", "/auth/login", "/auth/refresh").permitAll()
+                        .requestMatchers("OPTIONS", "/**").permitAll() // Cho phép preflight requests
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
