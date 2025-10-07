@@ -14,22 +14,71 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.be.dto.auth.RefreshTokenRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import java.time.Duration;
 
 @RestController()
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    @Value("${auth.refresh-cookie.name:refresh_token}")
+    private String refreshCookieName;
+    @Value("${auth.refresh-cookie.max-age-seconds:1209600}") // 14 days
+    private long refreshCookieMaxAgeSeconds;
+    @Value("${auth.cookie.secure:false}")
+    private boolean cookieSecure;
+    @Value("${auth.cookie.same-site:None}")
+    private String cookieSameSite;
+    @Value("${auth.cookie.path:/}")
+    private String cookiePath;
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Validated @RequestBody LoginRequestUser request) {
-        AuthResponse response = authService.login(request);
-        return ResponseHandler.ok(response, "Login successfully");
+    public ResponseEntity<?> login(@Validated @RequestBody LoginRequestUser request, HttpServletResponse httpResponse) {
+        AuthResponse data = authService.login(request);
+        // Set refresh token vào HttpOnly cookie và không trả trong body
+        if (data.getRefreshToken() != null) {
+            ResponseCookie cookie = ResponseCookie.from(refreshCookieName, data.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(cookieSecure)
+                    .sameSite(cookieSameSite)
+                    .path(cookiePath)
+                    .maxAge(Duration.ofSeconds(refreshCookieMaxAgeSeconds))
+                    .build();
+            httpResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            data.setRefreshToken(null);
+        }
+        return ResponseHandler.ok(data, "Login successfully");
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@Validated @RequestBody RefreshTokenRequest request) {
-        AuthResponse response = authService.refresh(request.getRefreshToken());
-        return ResponseHandler.ok(response, "Refresh token successfully");
+    public ResponseEntity<?> refresh(@Validated @RequestBody RefreshTokenRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        String refreshToken = request != null ? request.getRefreshToken() : null;
+        if ((refreshToken == null || refreshToken.isBlank()) && httpRequest.getCookies() != null) {
+            for (var c : httpRequest.getCookies()) {
+                if (refreshCookieName.equals(c.getName())) {
+                    refreshToken = c.getValue();
+                    break;
+                }
+            }
+        }
+        AuthResponse data = authService.refresh(refreshToken);
+        // Set refresh token mới vào cookie, không trả trong body
+        if (data.getRefreshToken() != null) {
+            ResponseCookie cookie = ResponseCookie.from(refreshCookieName, data.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(cookieSecure)
+                    .sameSite(cookieSameSite)
+                    .path(cookiePath)
+                    .maxAge(Duration.ofSeconds(refreshCookieMaxAgeSeconds))
+                    .build();
+            httpResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            data.setRefreshToken(null);
+        }
+        return ResponseHandler.ok(data, "Refresh token successfully");
     }
 
     @GetMapping("/me")
