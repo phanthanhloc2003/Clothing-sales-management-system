@@ -4,8 +4,8 @@ import com.example.be.dto.auth.AuthResponse;
 import com.example.be.dto.user.LoginRequestUser;
 import com.example.be.dto.user.UserResponseNoPassDTO;
 import com.example.be.service.auth.AuthService;
+import com.example.be.response.ResponseHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,19 +20,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Validated @RequestBody LoginRequestUser request) {
+    public ResponseEntity<?> login(@Validated @RequestBody LoginRequestUser request) {
         AuthResponse response = authService.login(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseHandler.ok(response, "Login successfully");
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody String refreshToken) {
+    public ResponseEntity<?> refresh(@RequestBody String refreshToken) {
         AuthResponse response = authService.refresh(refreshToken);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseHandler.ok(response, "Refresh token successfully");
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponseNoPassDTO> me() {
-        return ResponseEntity.ok(authService.me());
+    public ResponseEntity<?> me() {
+        UserResponseNoPassDTO data = authService.me();
+        return ResponseHandler.ok(data, "Get current user successfully");
     }
 }

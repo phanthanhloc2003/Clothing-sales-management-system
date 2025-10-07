@@ -8,7 +8,6 @@ const axiosClient: AxiosInstance = axios.create({
   timeout: 10000, 
 });
 
-// Request Interceptor
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
@@ -26,18 +25,15 @@ axiosClient.interceptors.response.use(
   (response) => response.data,
   async (error: AxiosError) => {
     if (error.response) {
-      const status = error.response.status;
-      const data = (error.response.data as { message?: string }) || {};
+      const { status } = error.response;
 
       if (status === 401) {
         console.warn("Unauthorized - redirect to login");
       }
-
-      return Promise.reject({
-        status,
-        message: data.message || "Something went wrong",
-      });
+      return Promise.reject(error);
     }
+
+    console.error("Network error:", error);
     return Promise.reject(error);
   }
 );

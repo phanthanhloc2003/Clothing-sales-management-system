@@ -27,12 +27,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Cấu hình security với CORS:
-     * - Tích hợp CORS configuration từ CorsConfig
-     * - Cho phép preflight requests (OPTIONS)
-     * - Cấu hình stateless với JWT
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
@@ -41,7 +35,6 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/register", "/auth/login", "/auth/refresh").permitAll()
-                        .requestMatchers("OPTIONS", "/**").permitAll() // Cho phép preflight requests
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults());

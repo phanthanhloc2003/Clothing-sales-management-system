@@ -10,13 +10,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Cấu hình CORS cho dự án thực tế:
- * - Cho phép các origin từ frontend (localhost, production domain)
- * - Hỗ trợ các HTTP methods cần thiết
- * - Cho phép các headers quan trọng (Authorization, Content-Type, etc.)
- * - Hỗ trợ credentials cho JWT authentication
- */
 @Configuration
 public class CorsConfig {
 
