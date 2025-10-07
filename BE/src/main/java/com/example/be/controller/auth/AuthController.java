@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.be.dto.auth.RefreshTokenRequest;
 
 @RestController()
 @RequestMapping("/auth")
@@ -26,8 +27,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody String refreshToken) {
-        AuthResponse response = authService.refresh(refreshToken);
+    public ResponseEntity<?> refresh(@Validated @RequestBody RefreshTokenRequest request) {
+        AuthResponse response = authService.refresh(request.getRefreshToken());
         return ResponseHandler.ok(response, "Refresh token successfully");
     }
 
