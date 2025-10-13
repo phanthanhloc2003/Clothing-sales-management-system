@@ -13,11 +13,18 @@ export interface User {
   id: number;
   fullName: string;
   phone: string;
-  role: "USER" | "ADMIN"; 
-  status: "ACTIVE" | "INACTIVE" | "BANNED"; 
-  avatar?: string | null;
-  createdAt: string; 
-  updatedAt: string; 
+  role: string;
+  status: string;
+  avatar: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LoginResponse {
+    accessToken: string;
+    refreshToken: string | null;
+    tokenType: string;
+    user: User;
 }
 
 

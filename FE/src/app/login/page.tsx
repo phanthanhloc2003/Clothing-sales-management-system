@@ -11,9 +11,12 @@ import Loading from "@/components/ui/Loading";
 import { LoginRequest } from "@/types/auth";
 import { loginSchema } from "@/validation/auth";
 import { authService } from "@/services/auth";
+import { useAppDispatch } from "@/store/hooks";
+import { loginSuccess } from "@/store/authSlice";
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm<LoginRequest>({
     resolver: zodResolver(loginSchema),
     defaultValues: { phone: "", password: "" },
@@ -22,8 +25,9 @@ export default function LoginPage() {
 
   const onSubmit = handleSubmit(async (values) => {
     const res = await authService.login(values);
-    if (res.success) {
-      setTimeout(() => router.push("/"), 500);
+    if (res.success && res.data) {
+      dispatch(loginSuccess(res.data));
+      setTimeout(() => router.push("/"),0);
     } else {
       setError("root", { message: res.message || "Đăng nhập thất bại" });
     }

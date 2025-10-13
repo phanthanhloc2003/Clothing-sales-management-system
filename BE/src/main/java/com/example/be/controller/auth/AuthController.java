@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.be.dto.auth.RefreshTokenRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +38,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Validated @RequestBody LoginRequestUser request, HttpServletResponse httpResponse) {
         AuthResponse data = authService.login(request);
-        // Set refresh token vào HttpOnly cookie và không trả trong body
         if (data.getRefreshToken() != null) {
             ResponseCookie cookie = ResponseCookie.from(refreshCookieName, data.getRefreshToken())
                     .httpOnly(true)
@@ -55,9 +53,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@Validated @RequestBody RefreshTokenRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        String refreshToken = request != null ? request.getRefreshToken() : null;
-        if ((refreshToken == null || refreshToken.isBlank()) && httpRequest.getCookies() != null) {
+    public ResponseEntity<?> refresh(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        String refreshToken = null;
+        if (httpRequest.getCookies() != null) {
             for (var c : httpRequest.getCookies()) {
                 if (refreshCookieName.equals(c.getName())) {
                     refreshToken = c.getValue();
@@ -83,7 +81,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> me() {
-        UserResponseNoPassDTO data = authService.me();
-        return ResponseHandler.ok(data, "Get current user successfully");
+        UserResponseNoPassDTO User = authService.me();
+        return ResponseHandler.ok(User, "Get current user successfully");
     }
 }

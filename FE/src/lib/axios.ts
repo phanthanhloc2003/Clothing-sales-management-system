@@ -1,12 +1,30 @@
-import axios, { AxiosError, AxiosInstance } from "axios";
+import { authService } from "@/services/auth";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/",
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000, 
+  timeout: 10000,
+  withCredentials: true,
 });
+
+let isRefreshing = false;
+type QueueItem = {
+  resolve: (value: string | null) => void;
+  reject: (reason?: unknown) => void;
+};
+let failedQueue: QueueItem[] = [];
+
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else prom.resolve(token);
+  });
+  failedQueue = [];
+};
 
 axiosClient.interceptors.request.use(
   (config) => {
@@ -16,24 +34,56 @@ axiosClient.interceptors.request.use(
     }
     return config;
   },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  }
+  (error: AxiosError) => Promise.reject(error)
 );
+
 
 axiosClient.interceptors.response.use(
   (response) => response.data,
   async (error: AxiosError) => {
-    if (error.response) {
-      const { status } = error.response;
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
-      if (status === 401) {
-        console.warn("Unauthorized - redirect to login");
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise<string | null>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            if (token && originalRequest.headers) {
+              originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            }
+            return axiosClient(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
       }
-      return Promise.reject(error);
-    }
+      originalRequest._retry = true;
+      isRefreshing = true;
+      try {
+   
+        const res = await authService.getRefreshToken();
+        const newAccessToken = res && res.data ? res.data.accessToken : undefined;
+        if (!newAccessToken) {
+          throw new Error("Invalid refresh response: missing accessToken");
+        }
+        localStorage.setItem("accessToken", newAccessToken);
 
-    console.error("Network error:", error);
+        processQueue(null, newAccessToken);
+        isRefreshing = false;
+
+        if (originalRequest.headers)
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+        return axiosClient(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        isRefreshing = false;
+        console.error("Refresh token failed:", refreshError);
+        localStorage.removeItem("accessToken");
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
+      }
+    }
+    console.error("API Error:", error);
     return Promise.reject(error);
   }
 );

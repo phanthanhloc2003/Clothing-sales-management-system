@@ -2,11 +2,16 @@
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useEffect, useState } from "react";
+import UserMenu from "@/components/ui/UserMenu";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { logout } from "@/store/authSlice";
 
 export default function Header() {
   const { scrollY } = useScroll();
   const [elevated, setElevated] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const dispatch = useAppDispatch();
+  const { user, isAuthenticated } = useAppSelector((s) => s.auth);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setElevated(latest > 10);
@@ -87,6 +92,18 @@ export default function Header() {
             <Link href="/cart" aria-label="Giỏ hàng" className="opacity-80 hover:opacity-100 transition-opacity hover:text-[color:var(--accent)]">
               🛒
             </Link>
+            {isAuthenticated ? (
+              <UserMenu
+                fullName={user?.fullName}
+                avatar={user?.avatar ?? null}
+                onLogout={() => dispatch(logout())}
+              />
+            ) : (
+              <div className="hidden sm:flex items-center gap-2">
+                <Link href="/login" className="text-sm px-3 py-1.5 rounded-md border border-black/10 hover:border-black/20 transition-colors">Đăng nhập</Link>
+                <Link href="/register" className="text-sm px-3 py-1.5 rounded-md bg-[color:var(--accent)] text-white hover:brightness-95 transition-colors">Đăng ký</Link>
+              </div>
+            )}
           </div>
         </nav>
       </div>

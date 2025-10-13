@@ -13,7 +13,7 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000}")
+    @Value("${cors.allowed-origins:http://localhost:3000,http://127.0.0.1:3000}")
     private String allowedOrigins;
 
     @Value("${cors.allowed-methods:GET,POST,PUT,DELETE,OPTIONS,PATCH}")
@@ -22,7 +22,7 @@ public class CorsConfig {
     @Value("${cors.allowed-headers:*}")
     private String allowedHeaders;
 
-    @Value("${cors.exposed-headers:Authorization,Content-Type}")
+    @Value("${cors.exposed-headers:Authorization,Content-Type,Set-Cookie}")
     private String exposedHeaders;
 
     @Value("${cors.allow-credentials:true}")
@@ -34,35 +34,34 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Parse allowed origins từ config
+
+        // ✅ Dùng setAllowedOrigins thay vì setAllowedOriginPatterns
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
-        configuration.setAllowedOriginPatterns(origins);
-        
-        // Parse allowed methods
+        configuration.setAllowedOrigins(origins);
+
+        // Methods
         List<String> methods = Arrays.asList(allowedMethods.split(","));
         configuration.setAllowedMethods(methods);
-        
-        // Parse allowed headers
+
+        // Headers
         if ("*".equals(allowedHeaders)) {
             configuration.addAllowedHeader("*");
         } else {
             List<String> headers = Arrays.asList(allowedHeaders.split(","));
             configuration.setAllowedHeaders(headers);
         }
-        
-        // Parse exposed headers
+
+        // Exposed Headers
         List<String> exposed = Arrays.asList(exposedHeaders.split(","));
         configuration.setExposedHeaders(exposed);
-        
-        // Cấu hình credentials và max age
+
+        // Credentials + Max Age
         configuration.setAllowCredentials(allowCredentials);
         configuration.setMaxAge(maxAge);
-        
-        // Áp dụng cho tất cả endpoints
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        
+
         return source;
     }
 }

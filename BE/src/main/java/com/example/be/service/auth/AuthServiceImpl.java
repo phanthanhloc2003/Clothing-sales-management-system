@@ -71,7 +71,6 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().name());
         String newAccess = jwtUtil.generateAccessToken(user.getPhone(), claims);
-        String newRefresh = jwtUtil.generateRefreshToken(user.getPhone());
 
         UserResponseNoPassDTO userDto = UserResponseNoPassDTO.builder()
                 .id(user.getId())
@@ -86,7 +85,6 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .accessToken(newAccess)
-                .refreshToken(newRefresh)
                 .tokenType("Bearer")
                 .user(userDto)
                 .build();

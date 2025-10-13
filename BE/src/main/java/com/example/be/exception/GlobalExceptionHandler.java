@@ -12,12 +12,7 @@ import java.util.Map;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-/**
- * Xử lý lỗi toàn cục:
- * - 500 cho lỗi không xác định
- * - 400 cho lỗi validate DTO
- * - 401 cho sai thông tin đăng nhập và các lỗi JWT (hết hạn/không hợp lệ)
- */
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
@@ -49,7 +44,6 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
-
 
 
     @ExceptionHandler(UserAlreadyExistsException.class)
@@ -95,5 +89,27 @@ public class GlobalExceptionHandler {
         body.put("message", "Invalid JWT");
         body.put("success", false);
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(SlugAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleSlugExists(SlugAlreadyExistsException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("error", "Conflict");
+        body.put("message", ex.getMessage());
+        body.put("success", false);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryNotFound(CategoryNotFoundException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", "Not Found");
+        body.put("message", ex.getMessage());
+        body.put("success", false);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 }
