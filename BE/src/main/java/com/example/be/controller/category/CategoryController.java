@@ -26,4 +26,21 @@ public class CategoryController {
         List<Category> parents = categoryService.getParentCategories();
         return ResponseHandler.success(parents, "Fetched parent categories successfully");
     }
+
+    @GetMapping()
+    public ResponseEntity<?> getAllCategories() {
+        return ResponseHandler.success(categoryService.getAllCategories(),  "Fetched all categories successfully");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Integer id) {
+        categoryService.deleteCategory(id);
+        return ResponseHandler.success(null, "Category deleted successfully");
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable Integer id, @RequestBody CategoryRequest request) {
+        Category updated = categoryService.updateCategory(id, request);
+        return ResponseHandler.success(updated, "Category updated successfully");
+    }
 }

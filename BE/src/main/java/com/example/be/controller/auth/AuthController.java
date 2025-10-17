@@ -52,7 +52,7 @@ public class AuthController {
         return ResponseHandler.ok(data, "Login successfully");
     }
 
-    @PostMapping("/refresh")
+    @GetMapping("/refresh")
     public ResponseEntity<?> refresh(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         String refreshToken = null;
         if (httpRequest.getCookies() != null) {
@@ -64,7 +64,6 @@ public class AuthController {
             }
         }
         AuthResponse data = authService.refresh(refreshToken);
-        // Set refresh token mới vào cookie, không trả trong body
         if (data.getRefreshToken() != null) {
             ResponseCookie cookie = ResponseCookie.from(refreshCookieName, data.getRefreshToken())
                     .httpOnly(true)
