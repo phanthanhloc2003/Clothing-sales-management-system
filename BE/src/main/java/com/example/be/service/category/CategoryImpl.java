@@ -5,6 +5,7 @@ import com.example.be.entity.category.Category;
 import com.example.be.exception.CategoryNotFoundException;
 import com.example.be.exception.SlugAlreadyExistsException;
 import com.example.be.repository.category.CategoryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CategoryImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
